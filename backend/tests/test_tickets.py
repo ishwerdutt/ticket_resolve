@@ -61,3 +61,21 @@ async def test_get_customer_ticket_not_found():
             db=db,
         )
     assert exc.value.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_metrics_endpoint():
+    from app.api.admin import get_metrics
+
+    db = AsyncMock()
+    mock_result = MagicMock()
+    mock_result.scalar.return_value = 5
+    db.execute = AsyncMock(return_value=mock_result)
+
+    metrics = await get_metrics(
+        current_staff={"staff_id": make_uuid(), "email": "admin@threadnest.com", "role": "admin"},
+        db=db,
+    )
+    assert metrics.total_conversations == 5
+    assert metrics.resolved_count == 5
+

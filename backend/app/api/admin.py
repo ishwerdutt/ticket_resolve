@@ -49,13 +49,14 @@ async def get_metrics(
     total_refunds_amount = float(refund_result.scalar() or 0)
 
     # Average tool calls per conversation
-    avg_result = await db.execute(
-        select(func.coalesce(func.avg(func.count(ToolCall.id)), 0))
+    subq = (
+        select(func.count(ToolCall.id).label("cnt"))
         .select_from(ToolCall)
         .group_by(ToolCall.conversation_id)
+        .subquery()
     )
-    rows = avg_result.scalars().all()
-    avg_tool_calls = float(sum(rows) / len(rows)) if rows else 0.0
+    avg_result = await db.execute(select(func.coalesce(func.avg(subq.c.cnt), 0.0)))
+    avg_tool_calls = float(avg_result.scalar() or 0.0)
 
     return MetricsOut(
         total_conversations=total_conversations,

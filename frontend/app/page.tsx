@@ -77,7 +77,12 @@ export default function Home() {
           {/* Navigation Tabs */}
           <nav className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80">
             <button
-              onClick={() => setActiveView("chat")}
+              onClick={() => {
+                if (currentUser.role !== "customer") {
+                  setCurrentUser(DEMO_USERS[0]);
+                }
+                setActiveView("chat");
+              }}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeView === "chat"
                   ? "bg-white text-indigo-700 shadow-xs"
@@ -103,7 +108,13 @@ export default function Home() {
             )}
 
             <button
-              onClick={() => setActiveView("admin")}
+              onClick={() => {
+                if (currentUser.role === "customer") {
+                  const staffUser = DEMO_USERS.find((u) => u.role === "reviewer") || DEMO_USERS[3];
+                  setCurrentUser(staffUser);
+                }
+                setActiveView("admin");
+              }}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
                 activeView === "admin"
                   ? "bg-white text-indigo-700 shadow-xs"
