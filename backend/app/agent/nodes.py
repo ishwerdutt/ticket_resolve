@@ -338,7 +338,7 @@ async def _dispatch_tool(
 
         elif tool_name == "search_policy":
             from app.tools.policy_tools import search_policy
-            return await search_policy(query=tool_args["query"], db=db)
+            return await search_policy(query=tool_args["query"], db=db, conversation_id=conversation_id)
 
         elif tool_name == "create_ticket":
             from app.tools.ticket_tools import create_ticket

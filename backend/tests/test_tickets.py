@@ -79,3 +79,22 @@ async def test_get_metrics_endpoint():
     assert metrics.total_conversations == 5
     assert metrics.resolved_count == 5
 
+
+@pytest.mark.asyncio
+async def test_get_activity_endpoint():
+    from app.api.admin import get_activity
+
+    db = AsyncMock()
+    mock_result = MagicMock()
+    mock_result.all.return_value = []
+    db.execute = AsyncMock(return_value=mock_result)
+
+    events = await get_activity(
+        limit=10,
+        current_staff={"staff_id": make_uuid(), "email": "reviewer@threadnest.com", "role": "reviewer"},
+        db=db,
+    )
+    assert isinstance(events, list)
+    assert len(events) == 0
+
+

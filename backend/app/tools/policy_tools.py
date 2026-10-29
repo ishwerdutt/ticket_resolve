@@ -5,7 +5,8 @@ Performs BM25 sparse keyword search + pgvector dense cosine search
 fused via Reciprocal Rank Fusion (k=60), returning top passages with
 formatted section citations.
 """
-from typing import Dict, List, Any
+import time
+from typing import Dict, List, Any, Optional
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -40,7 +41,12 @@ def compute_rrf_score(sparse_rank: int | None, dense_rank: int | None, k: float 
     return score
 
 
-async def search_policy(query: str, db: AsyncSession, top_k: int = 3) -> Dict[str, Any]:
+async def search_policy(
+    query: str,
+    db: AsyncSession,
+    top_k: int = 3,
+    conversation_id: Optional[str] = None,
+) -> Dict[str, Any]:
     """
     Search ThreadNest policy documents using hybrid BM25 + pgvector RRF retrieval.
 
@@ -48,6 +54,7 @@ async def search_policy(query: str, db: AsyncSession, top_k: int = 3) -> Dict[st
         query: User or agent policy question.
         db: AsyncSession database handle.
         top_k: Number of passages to return (default: 3).
+        conversation_id: Optional conversation UUID to persist tool call telemetry.
 
     Returns:
         Dict with keys:
@@ -55,6 +62,7 @@ async def search_policy(query: str, db: AsyncSession, top_k: int = 3) -> Dict[st
             count: int
             query: str
     """
+    start_time = time.time()
     cleaned_query = query.strip() if query else ""
     if not cleaned_query:
         return {"passages": [], "count": 0, "query": query}
@@ -136,8 +144,29 @@ async def search_policy(query: str, db: AsyncSession, top_k: int = 3) -> Dict[st
             "score": round(score, 4),
         })
 
-    return {
+    result_payload = {
         "passages": passages,
         "count": len(passages),
         "query": query,
     }
+
+    if conversation_id:
+        try:
+            from app.models.db import ToolCall
+            latency_ms = int((time.time() - start_time) * 1000)
+            tc = ToolCall(
+                conversation_id=conversation_id,
+                tool="search_policy",
+                args_json={"query": query, "top_k": top_k},
+                result_json={
+                    "citations": [p["citation"] for p in passages],
+                    "count": len(passages),
+                },
+                latency_ms=latency_ms,
+            )
+            db.add(tc)
+            await db.flush()
+        except Exception:
+            pass
+
+    return result_payload

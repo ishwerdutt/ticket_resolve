@@ -136,7 +136,20 @@ class ToolCallOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ─── Metrics ─────────────────────────────────────────────────────────────────
+# ─── Metrics & Activity ──────────────────────────────────────────────────────
+
+class ActivityEvent(BaseModel):
+    id: str
+    type: Literal["tool_call", "approval", "ticket", "message"]
+    title: str
+    description: str
+    customer_name: Optional[str] = None
+    conversation_id: Optional[str] = None
+    created_at: datetime
+    details: Optional[dict] = None
+    status: Optional[str] = None
+    latency_ms: Optional[int] = None
+
 
 class MetricsOut(BaseModel):
     total_conversations: int
