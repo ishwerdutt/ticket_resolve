@@ -96,3 +96,7 @@ dmypy.json
 
 # ruff
 .ruff_cache/
+
+# Scratch & temporary scripts
+scratch/
+
