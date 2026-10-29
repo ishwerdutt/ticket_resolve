@@ -31,5 +31,14 @@ services:
     environment:
       DATABASE_URL: postgresql+asyncpg://support_user:support_pass@db:5432/ai_support
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
 volumes:
   pgdata:
