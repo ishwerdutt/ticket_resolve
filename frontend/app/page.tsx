@@ -23,7 +23,7 @@ export default function Home() {
   const [staffToken, setStaffToken] = useState<string | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [activeView, setActiveView] = useState<"chat" | "tickets" | "admin">("chat");
-  const [splitView, setSplitView] = useState<boolean>(true);
+  const [splitView, setSplitView] = useState<boolean>(false);
 
   // Automatically acquire dedicated staff reviewer token for the live observer
   useEffect(() => {

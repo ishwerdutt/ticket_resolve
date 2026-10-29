@@ -131,7 +131,7 @@ export default function AdminPortal({ token, userName, userRole }: AdminPortalPr
   const pendingApprovalsCount = approvals.filter((a) => a.status === "pending").length;
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden flex flex-col h-[740px]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between px-6 py-5 border-b border-slate-200 bg-slate-900 text-white gap-4">
         <div className="flex items-center gap-3">
@@ -259,7 +259,7 @@ export default function AdminPortal({ token, userName, userRole }: AdminPortalPr
       )}
 
       {/* Content Area */}
-      <div className="p-6">
+      <div className="p-6 flex-1 overflow-y-auto">
         {loading ? (
           <div className="py-16 text-center text-slate-400 text-sm">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-indigo-600" />
